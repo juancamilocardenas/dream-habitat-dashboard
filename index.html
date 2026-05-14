@@ -8,32 +8,33 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'Inter',sans-serif;background:#0F172A;color:#E2E8F0;min-height:100vh}
+html,body{width:100%;overflow-x:hidden}
+body{font-family:'Inter',sans-serif;background:#0F172A;color:#E2E8F0;min-height:100vh;-webkit-text-size-adjust:100%}
 .header{background:linear-gradient(135deg,#1E293B 0%,#0F172A 100%);border-bottom:1px solid #1E3A5F;padding:24px 32px;display:flex;align-items:center;justify-content:space-between}
 .header-left h1{font-size:22px;font-weight:700;color:#F1F5F9;letter-spacing:-.3px}
 .header-left p{font-size:13px;color:#64748B;margin-top:3px}
-.logo{width:44px;height:44px;background:linear-gradient(135deg,#2563EB,#1D4ED8);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;color:#fff}
-.main{padding:24px 32px;max-width:1400px;margin:0 auto}
+.logo{width:44px;height:44px;background:linear-gradient(135deg,#2563EB,#1D4ED8);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;color:#fff;flex-shrink:0}
+.main{padding:24px 32px;max-width:1400px;margin:0 auto;width:100%}
 
-.tabs{display:flex;gap:8px;margin-bottom:24px;background:#1E293B;border-radius:12px;padding:6px;width:fit-content;border:1px solid #334155}
-.tab{padding:8px 22px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;color:#64748B;border:none;background:transparent}
+.tabs{display:flex;gap:8px;margin-bottom:24px;background:#1E293B;border-radius:12px;padding:6px;width:100%;max-width:max-content;border:1px solid #334155}
+.tab{padding:8px 22px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;color:#64748B;border:none;background:transparent;white-space:nowrap}
 .tab.active{background:#2563EB;color:#fff;box-shadow:0 2px 8px rgba(37,99,235,.4)}
 .tab:hover:not(.active){background:#334155;color:#CBD5E1}
 
 .kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:28px}
-.kpi{background:#1E293B;border:1px solid #334155;border-radius:14px;padding:20px 22px;position:relative;overflow:hidden}
+.kpi{background:#1E293B;border:1px solid #334155;border-radius:14px;padding:20px 22px;position:relative;overflow:hidden;min-width:0}
 .kpi::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:14px 14px 0 0}
 .kpi.blue::before{background:linear-gradient(90deg,#2563EB,#60A5FA)}
 .kpi.orange::before{background:linear-gradient(90deg,#EA580C,#F97316)}
 .kpi.green::before{background:linear-gradient(90deg,#16A34A,#4ADE80)}
 .kpi.teal::before{background:linear-gradient(90deg,#0D9488,#2DD4BF)}
 .kpi-label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.8px;color:#64748B;margin-bottom:10px}
-.kpi-value{font-size:26px;font-weight:700;color:#F1F5F9;line-height:1}
+.kpi-value{font-size:26px;font-weight:700;color:#F1F5F9;line-height:1;word-break:break-all}
 .kpi-sub{font-size:11px;color:#475569;margin-top:6px}
 .kpi-icon{position:absolute;right:18px;top:50%;transform:translateY(-50%);font-size:28px;opacity:.15}
 
 .charts-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:20px}
-.chart-card{background:#1E293B;border:1px solid #334155;border-radius:14px;padding:20px 22px}
+.chart-card{background:#1E293B;border:1px solid #334155;border-radius:14px;padding:20px 22px;min-width:0}
 .chart-card.full{grid-column:1/-1}
 .chart-title{font-size:13px;font-weight:600;color:#CBD5E1;margin-bottom:16px;display:flex;align-items:center;gap:8px}
 .chart-title span.dot{width:8px;height:8px;border-radius:50%;display:inline-block}
@@ -85,33 +86,45 @@ body{font-family:'Inter',sans-serif;background:#0F172A;color:#E2E8F0;min-height:
   .header-left p{font-size:11px}
   .logo{width:34px;height:34px;font-size:13px}
 
-  .main{padding:12px}
+  .main{padding:10px}
 
-  .tabs{width:100%}
-  .tab{flex:1;padding:8px 4px;font-size:12px;text-align:center}
+  /* Tabs: full width, each button equal share */
+  .tabs{max-width:100%;width:100%}
+  .tab{flex:1;padding:8px 2px;font-size:11px;text-align:center}
 
-  .kpi-row{grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:16px}
-  .kpi{padding:14px 12px}
-  .kpi-value{font-size:19px}
+  /* KPIs: 2 columns */
+  .kpi-row{grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:14px}
+  .kpi{padding:12px 10px}
+  .kpi-value{font-size:18px}
   .kpi-icon{display:none}
 
-  .charts-grid{grid-template-columns:1fr;gap:12px}
+  /* Charts: single column, min-width:0 prevents overflow */
+  .charts-grid{grid-template-columns:1fr;gap:10px}
+  .chart-card{min-width:0}
   .chart-card.full{grid-column:1}
-  .chart-wrap{height:190px}
-  .chart-wrap.tall{height:210px}
+  .chart-wrap{height:180px}
+  .chart-wrap.tall{height:200px}
 
-  .heat-card{padding:14px 12px}
-  .heat-table{font-size:10px}
-  .heat-table th,.heat-table td{padding:5px 7px}
+  /* Heat card tables: scroll horizontally */
+  .heat-card{padding:12px 10px;overflow:hidden}
+  .heat-card > div{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  .heat-table{font-size:10px;min-width:420px}
+  .heat-table th,.heat-table td{padding:5px 6px}
 
+  /* Pie, insights, descriptions: stack to 1 column */
   .pie-grid{grid-template-columns:1fr}
   .grid-3{grid-template-columns:1fr}
 
+  /* Chips */
   .exp-filters{gap:5px}
-  .chip{padding:4px 9px;font-size:10px}
+  .chip{padding:4px 8px;font-size:10px}
 
-  .legend{gap:8px}
+  .legend{gap:7px}
   .legend-item{font-size:10px}
+
+  /* Comparison table scroll */
+  #cmp-table{min-width:380px}
+  #dist-table{min-width:480px}
 }
 </style>
 </head>
@@ -186,12 +199,14 @@ body{font-family:'Inter',sans-serif;background:#0F172A;color:#E2E8F0;min-height:
         Not Operating
       </div>
     </div>
+    <div style="overflow-x:auto;-webkit-overflow-scrolling:touch">
     <table class="heat-table">
       <thead>
         <tr id="heat-thead"></tr>
       </thead>
       <tbody id="heat-tbody"></tbody>
     </table>
+    </div>
 
     <!-- MoM Comparison Table 2025 vs 2026 -->
     <div style="margin-top:28px">
@@ -219,6 +234,7 @@ body{font-family:'Inter',sans-serif;background:#0F172A;color:#E2E8F0;min-height:
           Not Operating
         </div>
       </div>
+      <div style="overflow-x:auto;-webkit-overflow-scrolling:touch">
       <table class="heat-table" id="cmp-table">
         <thead>
           <tr>
@@ -231,6 +247,7 @@ body{font-family:'Inter',sans-serif;background:#0F172A;color:#E2E8F0;min-height:
         </thead>
         <tbody id="cmp-tbody"></tbody>
       </table>
+      </div>
       <p style="font-size:10px;color:#475569;margin-top:10px">* Compares the same calendar month across both years. Only Jan–Apr available for 2026. Expense filter applied.</p>
     </div>
 
