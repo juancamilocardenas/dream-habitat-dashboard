@@ -322,7 +322,13 @@ body{font-family:'Inter',sans-serif;background:#0F172A;color:#E2E8F0;min-height:
   <div class="charts-grid">
 
     <div class="chart-card full">
-      <div class="chart-title"><span class="dot" style="background:#2563EB"></span>Monthly Income vs Expenses</div>
+      <div class="chart-title" style="justify-content:space-between;flex-wrap:wrap;gap:8px">
+        <span style="display:flex;align-items:center;gap:8px"><span class="dot" style="background:#2563EB"></span>Monthly Income vs Expenses</span>
+        <span style="display:flex;align-items:center;gap:16px;font-size:11px;font-weight:600">
+          <span style="display:flex;align-items:center;gap:5px"><span style="width:12px;height:12px;border-radius:3px;background:#2563EB;display:inline-block"></span><span style="color:#93C5FD">Income</span></span>
+          <span style="display:flex;align-items:center;gap:5px"><span style="width:12px;height:12px;border-radius:3px;background:#EA580C;display:inline-block"></span><span style="color:#FB923C">Expenses</span></span>
+        </span>
+      </div>
       <div class="chart-wrap tall"><canvas id="chartIncExp"></canvas></div>
     </div>
 
