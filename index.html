@@ -1,0 +1,1010 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>DREAM HABITAT LLC – Financial Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',sans-serif;background:#0F172A;color:#E2E8F0;min-height:100vh}
+.header{background:linear-gradient(135deg,#1E293B 0%,#0F172A 100%);border-bottom:1px solid #1E3A5F;padding:24px 32px;display:flex;align-items:center;justify-content:space-between}
+.header-left h1{font-size:22px;font-weight:700;color:#F1F5F9;letter-spacing:-.3px}
+.header-left p{font-size:13px;color:#64748B;margin-top:3px}
+.logo{width:44px;height:44px;background:linear-gradient(135deg,#2563EB,#1D4ED8);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;color:#fff}
+.main{padding:24px 32px;max-width:1400px;margin:0 auto}
+
+.tabs{display:flex;gap:8px;margin-bottom:24px;background:#1E293B;border-radius:12px;padding:6px;width:fit-content;border:1px solid #334155}
+.tab{padding:8px 22px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;color:#64748B;border:none;background:transparent}
+.tab.active{background:#2563EB;color:#fff;box-shadow:0 2px 8px rgba(37,99,235,.4)}
+.tab:hover:not(.active){background:#334155;color:#CBD5E1}
+
+.kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:28px}
+.kpi{background:#1E293B;border:1px solid #334155;border-radius:14px;padding:20px 22px;position:relative;overflow:hidden}
+.kpi::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:14px 14px 0 0}
+.kpi.blue::before{background:linear-gradient(90deg,#2563EB,#60A5FA)}
+.kpi.orange::before{background:linear-gradient(90deg,#EA580C,#F97316)}
+.kpi.green::before{background:linear-gradient(90deg,#16A34A,#4ADE80)}
+.kpi.teal::before{background:linear-gradient(90deg,#0D9488,#2DD4BF)}
+.kpi-label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.8px;color:#64748B;margin-bottom:10px}
+.kpi-value{font-size:26px;font-weight:700;color:#F1F5F9;line-height:1}
+.kpi-sub{font-size:11px;color:#475569;margin-top:6px}
+.kpi-icon{position:absolute;right:18px;top:50%;transform:translateY(-50%);font-size:28px;opacity:.15}
+
+.charts-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:20px}
+.chart-card{background:#1E293B;border:1px solid #334155;border-radius:14px;padding:20px 22px}
+.chart-card.full{grid-column:1/-1}
+.chart-title{font-size:13px;font-weight:600;color:#CBD5E1;margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.chart-title span.dot{width:8px;height:8px;border-radius:50%;display:inline-block}
+.chart-wrap{position:relative;height:240px}
+.chart-wrap.tall{height:280px}
+
+.legend{display:flex;flex-wrap:wrap;gap:12px;margin-top:10px}
+.legend-item{display:flex;align-items:center;gap:5px;font-size:11px;color:#94A3B8}
+.legend-dot{width:10px;height:10px;border-radius:2px;flex-shrink:0}
+
+/* Expense filter chips */
+.exp-filters{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px;align-items:center}
+.exp-filters label{font-size:11px;font-weight:600;color:#64748B;margin-right:4px;text-transform:uppercase;letter-spacing:.5px}
+.chip{display:flex;align-items:center;gap:6px;padding:5px 12px;border-radius:20px;border:1.5px solid #334155;background:#0F172A;color:#94A3B8;font-size:11px;font-weight:600;cursor:pointer;transition:all .18s;user-select:none}
+.chip input{display:none}
+.chip.active{border-color:currentColor}
+.chip.c-payroll{color:#60A5FA}.chip.c-payroll.active{background:rgba(37,99,235,.2);border-color:#2563EB}
+.chip.c-software{color:#2DD4BF}.chip.c-software.active{background:rgba(13,148,136,.2);border-color:#0D9488}
+.chip.c-buro{color:#C4B5FD}.chip.c-buro.active{background:rgba(124,58,237,.2);border-color:#7C3AED}
+.chip.c-other{color:#FCD34D}.chip.c-other.active{background:rgba(217,119,6,.2);border-color:#D97706}
+.chip.c-notop{color:#9CA3AF}.chip.c-notop.active{background:rgba(107,114,128,.2);border-color:#6B7280}
+.chip-check{width:14px;height:14px;border-radius:3px;border:1.5px solid currentColor;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.chip-check svg{display:none}
+.chip.active .chip-check svg{display:block}
+
+/* Heat table */
+.heat-card{background:#1E293B;border:1px solid #334155;border-radius:14px;padding:20px 22px;margin-bottom:20px}
+.heat-card .chart-title{font-size:13px;font-weight:600;color:#CBD5E1;margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.heat-table{width:100%;border-collapse:collapse;font-size:12px}
+.heat-table th{padding:8px 14px;text-align:right;font-size:11px;font-weight:600;color:#94A3B8;text-transform:uppercase;letter-spacing:.6px;border-bottom:1px solid #334155}
+.heat-table th:first-child{text-align:left}
+.heat-table td{padding:7px 14px;text-align:right;font-weight:500;transition:opacity .2s}
+.heat-table td:first-child{text-align:left;color:#CBD5E1;font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:.5px}
+.heat-table tr.total-row td{border-top:2px solid #334155;font-weight:700;font-size:13px;color:#F1F5F9;background:#263044!important;padding:10px 14px}
+.heat-table tr.total-row td:first-child{color:#F1F5F9}
+.heat-table tbody tr:hover td{opacity:.85}
+.heat-legend{display:flex;align-items:center;gap:20px;margin-top:12px;font-size:11px;color:#64748B}
+.heat-legend-scale{display:flex;align-items:center;gap:6px}
+.heat-legend-bar{width:80px;height:8px;border-radius:4px}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-left">
+    <h1>DREAM HABITAT LLC</h1>
+    <p>Financial Performance Dashboard &middot; Jan 2025 – Apr 2026</p>
+  </div>
+  <div class="logo">DH</div>
+</div>
+
+<div class="main">
+
+  <div class="tabs">
+    <button class="tab active" onclick="setYear('2025',this)">2025</button>
+    <button class="tab" onclick="setYear('2026',this)">2026</button>
+    <button class="tab" onclick="setYear('both',this)">2025 + 2026</button>
+  </div>
+
+  <div class="kpi-row">
+    <div class="kpi blue">
+      <div class="kpi-label">Total Income</div>
+      <div class="kpi-value" id="kpi-income">—</div>
+      <div class="kpi-sub" id="kpi-income-sub"></div>
+      <div class="kpi-icon">💰</div>
+    </div>
+    <div class="kpi orange">
+      <div class="kpi-label">Total Expenses</div>
+      <div class="kpi-value" id="kpi-expense">—</div>
+      <div class="kpi-sub" id="kpi-expense-sub"></div>
+      <div class="kpi-icon">📊</div>
+    </div>
+    <div class="kpi green">
+      <div class="kpi-label">Net Profit</div>
+      <div class="kpi-value" id="kpi-profit">—</div>
+      <div class="kpi-sub" id="kpi-profit-sub"></div>
+      <div class="kpi-icon">📈</div>
+    </div>
+    <div class="kpi teal">
+      <div class="kpi-label">Total Loans</div>
+      <div class="kpi-value" id="kpi-loans">—</div>
+      <div class="kpi-sub" id="kpi-loans-sub"></div>
+      <div class="kpi-icon">🏠</div>
+    </div>
+  </div>
+
+  <!-- Heat Table -->
+  <div class="heat-card">
+    <div class="chart-title"><span class="dot" style="background:#60A5FA"></span>Monthly Summary — Income vs Expenses Heatmap</div>
+    <div class="exp-filters">
+      <label>Include expenses:</label>
+      <div class="chip c-payroll active" onclick="toggleChip(this,'payroll')">
+        <div class="chip-check"><svg width="9" height="7" viewBox="0 0 9 7" fill="none"><path d="M1 3.5L3.5 6L8 1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        Payroll
+      </div>
+      <div class="chip c-software active" onclick="toggleChip(this,'software')">
+        <div class="chip-check"><svg width="9" height="7" viewBox="0 0 9 7" fill="none"><path d="M1 3.5L3.5 6L8 1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        Software
+      </div>
+      <div class="chip c-buro active" onclick="toggleChip(this,'buro')">
+        <div class="chip-check"><svg width="9" height="7" viewBox="0 0 9 7" fill="none"><path d="M1 3.5L3.5 6L8 1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        Buro – Xactus
+      </div>
+      <div class="chip c-other active" onclick="toggleChip(this,'other')">
+        <div class="chip-check"><svg width="9" height="7" viewBox="0 0 9 7" fill="none"><path d="M1 3.5L3.5 6L8 1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        Other
+      </div>
+      <div class="chip c-notop" onclick="toggleChip(this,'notop')">
+        <div class="chip-check"><svg width="9" height="7" viewBox="0 0 9 7" fill="none"><path d="M1 3.5L3.5 6L8 1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        Not Operating
+      </div>
+    </div>
+    <table class="heat-table">
+      <thead>
+        <tr id="heat-thead"></tr>
+      </thead>
+      <tbody id="heat-tbody"></tbody>
+    </table>
+
+    <!-- MoM Comparison Table 2025 vs 2026 -->
+    <div style="margin-top:28px">
+      <div class="chart-title" style="margin-bottom:14px"><span class="dot" style="background:#F97316"></span>Monthly Expense Comparison — 2025 vs 2026</div>
+      <div class="exp-filters" id="cmp-filters">
+        <label>Include expenses:</label>
+        <div class="chip c-payroll active"  id="cmp-chip-payroll"  onclick="syncChip('payroll')">
+          <div class="chip-check"><svg width="9" height="7" viewBox="0 0 9 7" fill="none"><path d="M1 3.5L3.5 6L8 1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          Payroll
+        </div>
+        <div class="chip c-software active" id="cmp-chip-software" onclick="syncChip('software')">
+          <div class="chip-check"><svg width="9" height="7" viewBox="0 0 9 7" fill="none"><path d="M1 3.5L3.5 6L8 1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          Software
+        </div>
+        <div class="chip c-buro active"     id="cmp-chip-buro"     onclick="syncChip('buro')">
+          <div class="chip-check"><svg width="9" height="7" viewBox="0 0 9 7" fill="none"><path d="M1 3.5L3.5 6L8 1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          Buro – Xactus
+        </div>
+        <div class="chip c-other active"    id="cmp-chip-other"    onclick="syncChip('other')">
+          <div class="chip-check"><svg width="9" height="7" viewBox="0 0 9 7" fill="none"><path d="M1 3.5L3.5 6L8 1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          Other
+        </div>
+        <div class="chip c-notop"           id="cmp-chip-notop"    onclick="syncChip('notop')">
+          <div class="chip-check"><svg width="9" height="7" viewBox="0 0 9 7" fill="none"><path d="M1 3.5L3.5 6L8 1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          Not Operating
+        </div>
+      </div>
+      <table class="heat-table" id="cmp-table">
+        <thead>
+          <tr>
+            <th style="text-align:left">Month</th>
+            <th>Expenses 2025</th>
+            <th>Expenses 2026</th>
+            <th>Difference ($)</th>
+            <th>Change (%)</th>
+          </tr>
+        </thead>
+        <tbody id="cmp-tbody"></tbody>
+      </table>
+      <p style="font-size:10px;color:#475569;margin-top:10px">* Compares the same calendar month across both years. Only Jan–Apr available for 2026. Expense filter applied.</p>
+    </div>
+
+    <!-- Pie charts row -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:24px">
+
+      <div style="background:#0F172A;border:1px solid #334155;border-radius:12px;padding:20px 22px">
+        <div class="chart-title" style="margin-bottom:12px"><span class="dot" style="background:#60A5FA"></span>Income Breakdown — Jan–Apr</div>
+        <div style="position:relative;height:220px"><canvas id="pieIE25"></canvas></div>
+        <div class="legend" id="legPieIE25" style="margin-top:12px;justify-content:center"></div>
+      </div>
+
+      <div style="background:#0F172A;border:1px solid #334155;border-radius:12px;padding:20px 22px">
+        <div class="chart-title" style="margin-bottom:12px"><span class="dot" style="background:#F97316"></span>Expense Breakdown by Category — Jan–Apr</div>
+        <div style="position:relative;height:220px"><canvas id="pieIE26"></canvas></div>
+        <div class="legend" id="legPieIE26" style="margin-top:12px;justify-content:center"></div>
+      </div>
+
+    </div>
+
+    <div class="heat-legend">
+      <span>Income:</span>
+      <div class="heat-legend-scale">
+        <span>Low</span>
+        <div class="heat-legend-bar" style="background:linear-gradient(90deg,#7f1d1d,#16a34a)"></div>
+        <span>High</span>
+      </div>
+      <span style="margin-left:16px">Expenses:</span>
+      <div class="heat-legend-scale">
+        <span>Low</span>
+        <div class="heat-legend-bar" style="background:linear-gradient(90deg,#16a34a,#7f1d1d)"></div>
+        <span>High</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Expense Distribution — standalone card -->
+  <div class="heat-card">
+    <div class="chart-title"><span class="dot" style="background:#F59E0B"></span>Monthly Expense Distribution by Category</div>
+    <div class="exp-filters">
+      <label>Include expenses:</label>
+      <div class="chip c-payroll active" id="dist-chip-payroll"  onclick="toggleDistChip(this,'payroll')">
+        <div class="chip-check"><svg width="9" height="7" viewBox="0 0 9 7" fill="none"><path d="M1 3.5L3.5 6L8 1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        Payroll
+      </div>
+      <div class="chip c-software active" id="dist-chip-software" onclick="toggleDistChip(this,'software')">
+        <div class="chip-check"><svg width="9" height="7" viewBox="0 0 9 7" fill="none"><path d="M1 3.5L3.5 6L8 1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        Software
+      </div>
+      <div class="chip c-buro active" id="dist-chip-buro" onclick="toggleDistChip(this,'buro')">
+        <div class="chip-check"><svg width="9" height="7" viewBox="0 0 9 7" fill="none"><path d="M1 3.5L3.5 6L8 1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        Buro – Xactus
+      </div>
+      <div class="chip c-other active" id="dist-chip-other" onclick="toggleDistChip(this,'other')">
+        <div class="chip-check"><svg width="9" height="7" viewBox="0 0 9 7" fill="none"><path d="M1 3.5L3.5 6L8 1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        Other
+      </div>
+      <div class="chip c-notop" id="dist-chip-notop" onclick="toggleDistChip(this,'notop')">
+        <div class="chip-check"><svg width="9" height="7" viewBox="0 0 9 7" fill="none"><path d="M1 3.5L3.5 6L8 1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        Not Operating
+      </div>
+    </div>
+    <div style="overflow-x:auto">
+      <table class="heat-table" id="dist-table" style="min-width:700px">
+        <thead><tr id="dist-thead"></tr></thead>
+        <tbody id="dist-tbody"></tbody>
+      </table>
+    </div>
+    <p style="font-size:10px;color:#475569;margin-top:10px">* % = share of that month's total expenses. ▲ HIGH / ▼ LOW badges mark values anomalous vs. the column average (z-score &gt; 1.5).</p>
+  </div>
+
+  <div class="charts-grid">
+
+    <div class="chart-card full">
+      <div class="chart-title"><span class="dot" style="background:#2563EB"></span>Monthly Income vs Expenses</div>
+      <div class="chart-wrap tall"><canvas id="chartIncExp"></canvas></div>
+    </div>
+
+    <div class="chart-card">
+      <div class="chart-title"><span class="dot" style="background:#4ADE80"></span>Monthly Net Profit</div>
+      <div class="chart-wrap"><canvas id="chartProfit"></canvas></div>
+    </div>
+
+    <div class="chart-card">
+      <div class="chart-title"><span class="dot" style="background:#2DD4BF"></span>Loans Closed per Month</div>
+      <div class="chart-wrap"><canvas id="chartLoans"></canvas></div>
+    </div>
+
+    <div class="chart-card">
+      <div class="chart-title"><span class="dot" style="background:#A78BFA"></span>Profit per Loan (Avg)</div>
+      <div class="chart-wrap"><canvas id="chartPPL"></canvas></div>
+    </div>
+
+    <div class="chart-card">
+      <div class="chart-title"><span class="dot" style="background:#F97316"></span>Expense Breakdown by Category</div>
+      <div class="chart-wrap"><canvas id="chartExpCat"></canvas></div>
+      <div class="legend" id="legExpCat"></div>
+    </div>
+
+    <div class="chart-card">
+      <div class="chart-title"><span class="dot" style="background:#60A5FA"></span>Income by Type</div>
+      <div class="chart-wrap"><canvas id="chartIncType"></canvas></div>
+      <div class="legend" id="legIncType"></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Expense Insights -->
+<div class="main" style="padding-top:0;padding-bottom:0">
+  <div class="heat-card" style="margin-bottom:20px">
+    <div class="chart-title"><span class="dot" style="background:#F59E0B"></span>Expense Insights &amp; Key Takeaways</div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px">
+
+      <!-- 1 -->
+      <div style="background:#0F172A;border:1px solid #1E3A5F;border-radius:10px;padding:16px 18px;border-left:3px solid #F59E0B">
+        <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:#F59E0B;margin-bottom:6px">Payroll Dominates</div>
+        <div style="font-size:20px;font-weight:700;color:#FCD34D;margin-bottom:6px">83%</div>
+        <p style="font-size:11px;color:#94A3B8;line-height:1.6">Payroll accounts for <strong style="color:#CBD5E1">$295K of $354K</strong> in 2025 operating expenses — the single largest cost driver by far. Any meaningful expense reduction starts here.</p>
+      </div>
+
+      <!-- 2 -->
+      <div style="background:#0F172A;border:1px solid #1E3A5F;border-radius:10px;padding:16px 18px;border-left:3px solid #EF4444">
+        <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:#EF4444;margin-bottom:6px">Payroll is Highly Volatile</div>
+        <div style="font-size:20px;font-weight:700;color:#FCA5A5;margin-bottom:6px">$4.8K → $47.6K</div>
+        <p style="font-size:11px;color:#94A3B8;line-height:1.6">2025 monthly payroll ranged from <strong style="color:#CBD5E1">$4,800 (Jan)</strong> to <strong style="color:#CBD5E1">$47,561 (Apr)</strong> — a std dev of $13K. This suggests commission-based or irregular pay cycles that are difficult to forecast.</p>
+      </div>
+
+      <!-- 3 -->
+      <div style="background:#0F172A;border:1px solid #1E3A5F;border-radius:10px;padding:16px 18px;border-left:3px solid #4ADE80">
+        <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:#4ADE80;margin-bottom:6px">Efficiency Leap in 2026</div>
+        <div style="font-size:20px;font-weight:700;color:#86EFAC;margin-bottom:6px">75% → 31%</div>
+        <p style="font-size:11px;color:#94A3B8;line-height:1.6">Expense-to-income ratio dropped from <strong style="color:#CBD5E1">75%</strong> (Jan–Apr 2025) to <strong style="color:#CBD5E1">31%</strong> (Jan–Apr 2026). Op expenses fell 24% while income nearly doubled — a major profitability inflection.</p>
+      </div>
+
+      <!-- 4 -->
+      <div style="background:#0F172A;border:1px solid #1E3A5F;border-radius:10px;padding:16px 18px;border-left:3px solid #EC4899">
+        <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:#EC4899;margin-bottom:6px">Buro – Xactus Growing Fast</div>
+        <div style="font-size:20px;font-weight:700;color:#F9A8D4;margin-bottom:6px">+93% YoY</div>
+        <p style="font-size:11px;color:#94A3B8;line-height:1.6">Average monthly Buro cost grew from <strong style="color:#CBD5E1">$2,481 (2025)</strong> to <strong style="color:#CBD5E1">$3,533 (2026 Jan–Apr)</strong>. This is volume-driven — more credit inquiries means higher loan pipeline activity, a positive signal.</p>
+      </div>
+
+      <!-- 5 -->
+      <div style="background:#0F172A;border:1px solid #1E3A5F;border-radius:10px;padding:16px 18px;border-left:3px solid #0EA5E9">
+        <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:#0EA5E9;margin-bottom:6px">Software Cost Spike in Feb 2026</div>
+        <div style="font-size:20px;font-weight:700;color:#7DD3FC;margin-bottom:6px">$5,377</div>
+        <p style="font-size:11px;color:#94A3B8;line-height:1.6">Software jumped to <strong style="color:#CBD5E1">$5,377 in Feb 2026</strong> vs. an avg of $1,581/month in 2025 (+240%). This one-time spike warrants review — likely a new tool or annual renewal front-loaded into February.</p>
+      </div>
+
+      <!-- 6 -->
+      <div style="background:#0F172A;border:1px solid #1E3A5F;border-radius:10px;padding:16px 18px;border-left:3px solid #A78BFA">
+        <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:#A78BFA;margin-bottom:6px">Other &amp; Software = Well Controlled</div>
+        <div style="font-size:20px;font-weight:700;color:#C4B5FD;margin-bottom:6px">8.2% combined</div>
+        <p style="font-size:11px;color:#94A3B8;line-height:1.6">Software (5.4%) and Other (2.8%) together represent only <strong style="color:#CBD5E1">$29K of $354K</strong> in 2025. These costs are stable and predictable — the team runs a lean SaaS stack.</p>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- Category Descriptions -->
+<div class="main" style="padding-top:0">
+  <div class="heat-card" style="margin-bottom:0">
+    <div class="chart-title"><span class="dot" style="background:#94A3B8"></span>Expense Category Descriptions</div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px">
+
+      <div style="background:#0F172A;border:1px solid #1E3A5F;border-radius:10px;padding:16px 18px;border-left:3px solid #2563EB">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+          <div style="width:10px;height:10px;border-radius:2px;background:#2563EB;flex-shrink:0"></div>
+          <span style="font-size:12px;font-weight:700;color:#93C5FD">Payroll</span>
+        </div>
+        <p style="font-size:11px;color:#64748B;line-height:1.6">Includes all salary payments to W-2 employees (<em>Payroll USD</em>) and fees to external contractors and outsourcing partners based in the U.S. and Colombia (<em>Payroll Col</em> — Premier Spaces, Marco Materrazi, Juan Carlos Arce, Mara Celedon, Esystems Cybersecurity).</p>
+      </div>
+
+      <div style="background:#0F172A;border:1px solid #1E3A5F;border-radius:10px;padding:16px 18px;border-left:3px solid #0D9488">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+          <div style="width:10px;height:10px;border-radius:2px;background:#0D9488;flex-shrink:0"></div>
+          <span style="font-size:12px;font-weight:700;color:#2DD4BF">Software</span>
+        </div>
+        <p style="font-size:11px;color:#64748B;line-height:1.6">Core sales and productivity platforms used daily by the team: <em>RingCentral</em> (phone/VoIP), <em>Phoneburner</em> (dialer), <em>Jungo</em> (CRM), <em>Calendly</em> (scheduling), <em>Arive</em> (loan origination), <em>DocuSign</em> (e-signatures), and <em>Monday.com</em> (project management).</p>
+      </div>
+
+      <div style="background:#0F172A;border:1px solid #1E3A5F;border-radius:10px;padding:16px 18px;border-left:3px solid #7C3AED">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+          <div style="width:10px;height:10px;border-radius:2px;background:#7C3AED;flex-shrink:0"></div>
+          <span style="font-size:12px;font-weight:700;color:#C4B5FD">Buro – Xactus</span>
+        </div>
+        <p style="font-size:11px;color:#64748B;line-height:1.6">Monthly subscription to <em>Xactus</em>, the credit bureau and data analytics platform used to pull tri-merge credit reports for borrowers. Cost varies by volume of credit inquiries processed each month.</p>
+      </div>
+
+      <div style="background:#0F172A;border:1px solid #1E3A5F;border-radius:10px;padding:16px 18px;border-left:3px solid #D97706">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+          <div style="width:10px;height:10px;border-radius:2px;background:#D97706;flex-shrink:0"></div>
+          <span style="font-size:12px;font-weight:700;color:#FCD34D">Other</span>
+        </div>
+        <p style="font-size:11px;color:#64748B;line-height:1.6">Miscellaneous operating software and minor subscriptions not classified above: <em>QuickBooks</em> (accounting), <em>Adobe</em> (design), <em>LinkedIn</em> (recruiting/marketing), <em>Loansifter</em> (pricing engine), <em>Open AI</em>, <em>Google Workspace</em>, <em>GoDaddy</em>, <em>Sinch Mailgun</em>, and similar tools.</p>
+      </div>
+
+      <div style="background:#0F172A;border:1px solid #1E3A5F;border-radius:10px;padding:16px 18px;border-left:3px solid #6B7280;grid-column:span 2">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+          <div style="width:10px;height:10px;border-radius:2px;background:#6B7280;flex-shrink:0"></div>
+          <span style="font-size:12px;font-weight:700;color:#9CA3AF">Not Operating Expenses</span>
+        </div>
+        <p style="font-size:11px;color:#64748B;line-height:1.6">Expenses not directly tied to the core mortgage brokerage operation. Includes: <em>Meals & Entertainment</em> (client lunches, team snacks, travel meals), <em>Travel</em> (airfare, hotels, transportation), <em>Rent & Phone</em> (office space, mobile plans), <em>Marketing</em> (ads, business licenses, promotions), <em>Administrative</em> (office supplies, tools, legal fees, accounting, insurance, repairs), and <em>Vehicle & Other</em> (gas, parking, tolls, auto repairs, bank fees, interest, depreciation). Excluded from operating expense totals by default.</p>
+      </div>
+
+    </div>
+    <p style="font-size:10px;color:#334155;margin-top:16px;text-align:right">Source: DREAM HABITAT LLC — Profit & Loss Detail · Jan 2025 – Apr 2026</p>
+  </div>
+</div>
+
+<script>
+const LABELS_25  = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const LABELS_26  = ['Jan','Feb','Mar','Apr'];
+const LABELS_ALL = ['Jan 25','Feb 25','Mar 25','Apr 25','May 25','Jun 25','Jul 25','Aug 25','Sep 25','Oct 25','Nov 25','Dec 25','Jan 26','Feb 26','Mar 26','Apr 26'];
+
+const DATA = {
+  '2025': {
+    labels  : LABELS_25,
+    income  : [52815.24,24634.67,59034.92,33975.09,34001.29,8250.11,75805.71,77903.52,50203.02,11157.07,20253.62,62797.16],
+    // expense = Payroll + Software + Buro + Other (operating only, matches Transaction Report)
+    payroll : [4800,32595,25657.71,47561.11,7254.93,16000,26009.86,20150,45552.22,18600,27052.22,24150],
+    software: [2309.80,1326.43,1173.86,1173.24,2853,1433.94,1215.40,1177.21,1219.74,1817.43,1620.79,1653.03],
+    buro    : [1357.11,1681.82,2115.45,2165.62,3276.11,2449.69,3833.87,1703,3057.82,2720.09,2910.85,2495.96],
+    other   : [682.61,853.31,858.18,1542.62,359.72,254.54,835.61,226.02,22.68,289.69,1734.87,2410.71],
+    notop   : [8247.93,12433.60,19291.24,15656.17,12677.28,9135.61,6373.28,24372.74,8890.04,14272.07,11871.09,-14121.84],
+    loans   : [2,3,5,4,2,2,7,4,4,1,3,5],   // 42 real loans (excl 7030 non-operating)
+    incType      : {Purchase:427790.27,'Ref. Cash-Out':75186.04,Refinance:7715.11,Other:140},
+    incTypeFullYear: {'4111 Income – Purchase':427790.27,'4113 Income – Refinance Cash-Out':75186.04,'4114 Income – Refinance':7715.11},
+    incTypeJanApr:   {'4111 Income – Purchase':161134.92,'4113 Income – Refinance Cash-Out':9325.00,'4114 Income – Refinance':0},
+  },
+  '2026': {
+    labels  : LABELS_26,
+    income  : [47976.44,45195.65,97246.15,118472.55],
+    // expense = Payroll + Software + Buro + Other (operating only)
+    payroll : [8876.11,32000,21000,7000],
+    software: [1652.07,5377.49,3309.72,1651.69],
+    buro    : [1750.21,3363.11,3477.04,5542.01],
+    other   : [666.15,417.73,371.15,332.15],
+    notop   : [5060.11,7938.83,7305.94,10685.99],
+    loans   : [3,6,7,7],
+    incType    : {Purchase:223736.72,'Ref. Cash-Out':17126.32,Refinance:68027.75,Other:0.17},
+    incTypeJanApr: {'4111 Income – Purchase':223736.72,'4113 Income – Refinance Cash-Out':17126.32,'4114 Income – Refinance':68027.75},
+  },
+};
+
+DATA['both'] = {
+  labels  : LABELS_ALL,
+  income  : [...DATA['2025'].income,  ...DATA['2026'].income],
+  payroll : [...DATA['2025'].payroll,  ...DATA['2026'].payroll],
+  software: [...DATA['2025'].software, ...DATA['2026'].software],
+  buro    : [...DATA['2025'].buro,     ...DATA['2026'].buro],
+  other   : [...DATA['2025'].other,    ...DATA['2026'].other],
+  notop   : [...DATA['2025'].notop,    ...DATA['2026'].notop],
+  loans   : [...DATA['2025'].loans,    ...DATA['2026'].loans],
+  incType : {
+    Purchase       : DATA['2025'].incType.Purchase        + DATA['2026'].incType.Purchase,
+    'Ref. Cash-Out': DATA['2025'].incType['Ref. Cash-Out'] + DATA['2026'].incType['Ref. Cash-Out'],
+    Refinance      : DATA['2025'].incType.Refinance       + DATA['2026'].incType.Refinance,
+    Other          : DATA['2025'].incType.Other           + DATA['2026'].incType.Other,
+  },
+};
+
+// Compute operating expense array for each dataset (respects filter later)
+function opExpense(d){
+  return d.income.map((_,i) =>
+    (d.payroll[i]  || 0) +
+    (d.software[i] || 0) +
+    (d.buro[i]     || 0) +
+    (d.other[i]    || 0)
+  );
+}
+
+const fmt  = v => (v<0?'-':'') + '$' + Math.abs(v).toLocaleString('en-US',{minimumFractionDigits:0,maximumFractionDigits:0});
+const fmtK = v => {
+  const sign = v < 0 ? '-' : '';
+  const abs  = Math.abs(v);
+  return abs >= 1000 ? sign + '$' + (abs/1000).toFixed(1) + 'K' : fmt(v);
+};
+const sum = arr => arr.reduce((a,b)=>a+(b||0),0);
+
+Chart.defaults.font.family = 'Inter';
+
+const BASE = {
+  responsive:true, maintainAspectRatio:false,
+  plugins:{legend:{display:false},tooltip:{
+    backgroundColor:'#1E293B',borderColor:'#334155',borderWidth:1,
+    titleColor:'#F1F5F9',bodyColor:'#CBD5E1',padding:10,
+    callbacks:{label:ctx=>` ${fmtK(ctx.raw)}`}
+  }},
+  scales:{
+    x:{ticks:{color:'#64748B',font:{size:10}},grid:{color:'rgba(51,65,85,.4)'},border:{display:false}},
+    y:{ticks:{color:'#64748B',font:{size:10},callback:v=>fmtK(v)},grid:{color:'rgba(51,65,85,.4)'},border:{display:false}},
+  }
+};
+
+function deepClone(o){ return JSON.parse(JSON.stringify(o)); }
+
+const charts = {};
+
+function mkChart(id, type, opts){
+  return new Chart(document.getElementById(id),{type,data:{labels:[],datasets:[]},options:opts||deepClone(BASE)});
+}
+
+function initCharts(){
+  charts.incExp  = mkChart('chartIncExp','bar');
+  charts.profit  = mkChart('chartProfit','line');
+
+  const loansOpts = deepClone(BASE);
+  loansOpts.scales.y.ticks.callback = v => v;
+  charts.loans   = mkChart('chartLoans','bar',loansOpts);
+
+  charts.ppl     = mkChart('chartPPL','line');
+
+  const catOpts  = deepClone(BASE);
+  catOpts.scales.x.stacked = true;
+  catOpts.scales.y.stacked = true;
+  catOpts.plugins.tooltip.callbacks.label = ctx => ` ${ctx.dataset.label}: ${fmtK(ctx.raw)}`;
+  charts.expCat  = mkChart('chartExpCat','bar',catOpts);
+
+  // Inline plugin — only attached to these two charts, zero global side-effects
+  const pctLabelPlugin = {
+    id:'pctLabel',
+    afterDatasetDraw(chart){
+      const ds = chart.data.datasets[0];
+      if(!ds) return;
+      const total = ds.data.reduce((a,b)=>a+b,0);
+      if(!total) return;
+      const meta = chart.getDatasetMeta(0);
+      const {ctx} = chart;
+      meta.data.forEach((arc,i)=>{
+        const val = ds.data[i]||0;
+        const pct = val/total*100;
+        if(pct < 5) return;
+        const {x,y} = arc.tooltipPosition();
+        ctx.save();
+        ctx.font = 'bold 11px Inter,sans-serif';
+        ctx.fillStyle = '#fff';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(pct.toFixed(1)+'%', x, y);
+        ctx.restore();
+      });
+    }
+  };
+
+  const pieOpts = {
+    responsive:true, maintainAspectRatio:false, cutout:'55%',
+    plugins:{
+      legend:{display:false},
+      tooltip:{
+        backgroundColor:'#1E293B',borderColor:'#334155',borderWidth:1,
+        titleColor:'#F1F5F9',bodyColor:'#CBD5E1',padding:10,
+        callbacks:{label:ctx=>{
+          const total = ctx.dataset.data.reduce((a,b)=>a+b,0);
+          return ` ${ctx.label}: ${fmt(ctx.raw)} (${(ctx.raw/total*100).toFixed(1)}%)`;
+        }}
+      }
+    }
+  };
+  charts.pieIE25 = new Chart(document.getElementById('pieIE25'),{type:'doughnut',data:{labels:[],datasets:[]},options:JSON.parse(JSON.stringify(pieOpts)),plugins:[pctLabelPlugin]});
+  charts.pieIE26 = new Chart(document.getElementById('pieIE26'),{type:'doughnut',data:{labels:[],datasets:[]},options:JSON.parse(JSON.stringify(pieOpts)),plugins:[pctLabelPlugin]});
+
+  charts.incType = new Chart(document.getElementById('chartIncType'),{
+    type:'doughnut',
+    data:{labels:[],datasets:[]},
+    options:{
+      responsive:true,maintainAspectRatio:false,cutout:'62%',
+      plugins:{legend:{display:false},tooltip:{
+        backgroundColor:'#1E293B',borderColor:'#334155',borderWidth:1,
+        titleColor:'#F1F5F9',bodyColor:'#CBD5E1',padding:10,
+        callbacks:{label:ctx=>{
+          const total = ctx.dataset.data.reduce((a,b)=>a+b,0);
+          return ` ${ctx.label}: ${fmt(ctx.raw)} (${(ctx.raw/total*100).toFixed(1)}%)`;
+        }}
+      }}
+    }
+  });
+}
+
+function updateChart(chart, labels, datasets){
+  chart.data.labels   = labels;
+  chart.data.datasets = datasets;
+  chart.update('active');
+}
+
+// ── Expense filter state ─────────────────────────────────────────────────────
+const expFilter  = { payroll:true, software:true, buro:true, other:true, notop:false };
+const cmpFilter  = { payroll:true, software:true, buro:true, other:true, notop:false };
+const distFilter = { payroll:true, software:true, buro:true, other:true, notop:false };
+
+// Heatmap filter — independent
+function toggleChip(el, key){
+  expFilter[key] = !expFilter[key];
+  el.classList.toggle('active', expFilter[key]);
+  buildHeatTable(DATA[currentYear]);
+}
+
+// Distribution table filter — independent
+function toggleDistChip(el, key){
+  distFilter[key] = !distFilter[key];
+  el.classList.toggle('active', distFilter[key]);
+  buildDistTable(DATA[currentYear]);
+}
+
+// Comparison table filter — independent
+function syncChip(key){
+  cmpFilter[key] = !cmpFilter[key];
+  document.getElementById(`cmp-chip-${key}`).classList.toggle('active', cmpFilter[key]);
+  buildComparisonTable();
+  buildIEPies();
+}
+
+// ── Heat table ────────────────────────────────────────────────────────────────
+function heatColor(value, min, max, invert){
+  const t = max === min ? 0.5 : (value - min) / (max - min);
+  const r = invert ? t : 1 - t;   // invert=true: high=red (expenses), false: high=green (income)
+  // lerp between green (#16a34a) → yellow (#ca8a04) → red (#7f1d1d)
+  let R, G, B;
+  if(r < 0.5){
+    const f = r * 2;
+    R = Math.round(22  + f * (202 - 22));
+    G = Math.round(163 + f * (138 - 163));
+    B = Math.round(74  + f * (4   - 74));
+  } else {
+    const f = (r - 0.5) * 2;
+    R = Math.round(202 + f * (127 - 202));
+    G = Math.round(138 + f * (29  - 138));
+    B = Math.round(4   + f * (29  - 4));
+  }
+  return `rgba(${R},${G},${B},0.30)`;
+}
+
+function buildHeatTable(d){
+  const labels = d.labels;
+
+  // Filtered expense = sum of only the selected categories per month
+  const filteredExp = d.income.map((_,i) =>
+    (expFilter.payroll  ? (d.payroll[i]  || 0) : 0) +
+    (expFilter.software ? (d.software[i] || 0) : 0) +
+    (expFilter.buro     ? (d.buro[i]     || 0) : 0) +
+    (expFilter.other    ? (d.other[i]    || 0) : 0) +
+    (expFilter.notop    ? (d.notop[i]    || 0) : 0)
+  );
+
+  const profit = d.income.map((v,i) => v - filteredExp[i]);
+  const ppl    = d.income.map((v,i) => d.loans[i] > 0 ? profit[i] / d.loans[i] : null);
+
+  const incMin = Math.min(...d.income),    incMax = Math.max(...d.income);
+  const expMin = Math.min(...filteredExp), expMax = Math.max(...filteredExp);
+  const prMin  = Math.min(...profit),      prMax  = Math.max(...profit);
+  const lnMin  = Math.min(...d.loans),     lnMax  = Math.max(...d.loans);
+
+  // Header
+  const thead = document.getElementById('heat-thead');
+  thead.innerHTML = `<th>Month</th><th>Income</th><th>Expenses</th><th>Net Profit</th><th>Loans</th><th>Profit / Loan</th>`;
+
+  // Body
+  const tbody = document.getElementById('heat-tbody');
+  tbody.innerHTML = '';
+
+  const pplValid = ppl.filter(x => x !== null);
+  const pplMin   = pplValid.length ? Math.min(...pplValid) : 0;
+  const pplMax   = pplValid.length ? Math.max(...pplValid) : 0;
+
+  labels.forEach((lbl, i) => {
+    const pr    = profit[i];
+    const pl    = ppl[i];
+    const lnVal = d.loans[i];
+
+    const cInc = heatColor(d.income[i],   incMin, incMax, false);
+    const cExp = heatColor(filteredExp[i], expMin, expMax, true);
+    const cPr  = heatColor(pr,  prMin, prMax, false);
+    const cLn  = heatColor(lnVal, lnMin, lnMax, false);
+    const cPl  = pl !== null ? heatColor(pl, pplMin, pplMax, false) : 'transparent';
+
+    const prColor = pr >= 0 ? '#4ADE80' : '#F87171';
+
+    tbody.innerHTML += `
+      <tr>
+        <td>${lbl}</td>
+        <td style="background:${cInc};color:#93C5FD">${fmt(d.income[i])}</td>
+        <td style="background:${cExp};color:#FCA5A5">${fmt(filteredExp[i])}</td>
+        <td style="background:${cPr};color:${prColor}">${fmt(pr)}</td>
+        <td style="background:${cLn};color:#5EEAD4">${lnVal}</td>
+        <td style="background:${cPl};color:#C4B5FD">${pl !== null ? fmt(pl) : '—'}</td>
+      </tr>`;
+  });
+
+  // Totals row
+  const tInc = sum(d.income);
+  const tExp = sum(filteredExp);
+  const tPr  = tInc - tExp;
+  const tLn  = sum(d.loans);
+  const tPl  = tLn > 0 ? tPr / tLn : null;
+  const tPrColor = tPr >= 0 ? '#4ADE80' : '#F87171';
+  tbody.innerHTML += `
+    <tr class="total-row">
+      <td>TOTAL</td>
+      <td style="color:#93C5FD">${fmt(tInc)}</td>
+      <td style="color:#FCA5A5">${fmt(tExp)}</td>
+      <td style="color:${tPrColor}">${fmt(tPr)}</td>
+      <td style="color:#5EEAD4">${tLn}</td>
+      <td style="color:#C4B5FD">${tPl !== null ? fmt(tPl) : '—'}</td>
+    </tr>`;
+}
+
+// ── Expense distribution table by category ───────────────────────────────────
+function buildDistTable(d){
+  const cats = [
+    { key:'payroll',  label:'Payroll',       color:'#F59E0B' },
+    { key:'software', label:'Software',      color:'#EF4444' },
+    { key:'buro',     label:'Buro – Xactus', color:'#EC4899' },
+    { key:'other',    label:'Other',         color:'#CA8A04' },
+    { key:'notop',    label:'Not Operating', color:'#78716C' },
+  ].filter(c => distFilter[c.key]);
+
+  const n = d.labels.length;
+
+  // Per-column z-score stats (mean + std dev across all months)
+  const colStats = cats.map(c => {
+    const vals = Array.from({length:n}, (_,i) => d[c.key][i] || 0);
+    const mean = vals.reduce((a,b)=>a+b,0) / n;
+    const std  = Math.sqrt(vals.reduce((s,v)=>s+(v-mean)**2,0) / n);
+    return { mean, std };
+  });
+
+  // z > 1.5 → high anomaly (red)   z < -1.5 → low anomaly (blue)
+  function anomalyStyle(v, ci){
+    const { mean, std } = colStats[ci];
+    if(std === 0) return '';
+    const z = (v - mean) / std;
+    if(z >  1.5) return 'background:rgba(239,68,68,.18);border-radius:6px;outline:1px solid rgba(239,68,68,.45);';
+    if(z < -1.5) return 'background:rgba(96,165,250,.13);border-radius:6px;outline:1px solid rgba(96,165,250,.35);';
+    return '';
+  }
+  function anomalyBadge(v, ci){
+    const { mean, std } = colStats[ci];
+    if(std === 0) return '';
+    const z = (v - mean) / std;
+    if(z >  1.5) return `<span title="Unusually high (z=${z.toFixed(1)})" style="margin-left:4px;font-size:9px;background:#EF4444;color:#fff;padding:1px 4px;border-radius:3px;vertical-align:middle">▲ HIGH</span>`;
+    if(z < -1.5) return `<span title="Unusually low (z=${z.toFixed(1)})"  style="margin-left:4px;font-size:9px;background:#3B82F6;color:#fff;padding:1px 4px;border-radius:3px;vertical-align:middle">▼ LOW</span>`;
+    return '';
+  }
+
+  // Header
+  const thead = document.getElementById('dist-thead');
+  const tbody = document.getElementById('dist-tbody');
+  thead.innerHTML = `<th style="text-align:left">Month</th>`
+    + cats.map(c => `<th style="color:${c.color}">${c.label}</th>`).join('')
+    + `<th>Total</th>`;
+
+  // Rows
+  const colTotals = cats.map(() => 0);
+  let grandTotal = 0;
+  let rows = '';
+
+  for(let i = 0; i < n; i++){
+    const vals     = cats.map(c => d[c.key][i] || 0);
+    const rowTotal = vals.reduce((a,b)=>a+b, 0);
+    grandTotal += rowTotal;
+    vals.forEach((v,ci) => colTotals[ci] += v);
+
+    rows += `<tr>
+      <td style="text-align:left;font-weight:600;color:#CBD5E1">${d.labels[i]}</td>
+      ${vals.map((v,ci) => {
+        const pct   = rowTotal > 0 ? (v/rowTotal*100).toFixed(1) : '0.0';
+        const style = anomalyStyle(v, ci);
+        const badge = anomalyBadge(v, ci);
+        return `<td><div style="padding:4px 6px;${style}">
+          <div style="font-size:12px;font-weight:600;color:#F1F5F9">${fmt(v)}${badge}</div>
+          <div style="font-size:10px;color:${cats[ci].color};margin-top:2px">${pct}%</div>
+        </div></td>`;
+      }).join('')}
+      <td style="font-weight:700;color:#60A5FA">${fmt(rowTotal)}</td>
+    </tr>`;
+  }
+
+  // Totals row
+  rows += `<tr style="border-top:2px solid #334155;background:rgba(37,99,235,.08)">
+    <td style="text-align:left;font-weight:700;color:#94A3B8;font-size:11px;text-transform:uppercase">Total</td>
+    ${colTotals.map((v,ci) => {
+      const pct = grandTotal > 0 ? (v/grandTotal*100).toFixed(1) : '0.0';
+      return `<td>
+        <div style="font-size:12px;font-weight:700;color:#F1F5F9">${fmt(v)}</div>
+        <div style="font-size:10px;color:${cats[ci].color};margin-top:2px">${pct}%</div>
+      </td>`;
+    }).join('')}
+    <td style="font-weight:700;color:#60A5FA;font-size:13px">${fmt(grandTotal)}</td>
+  </tr>`;
+
+  tbody.innerHTML = rows;
+}
+
+// ── 2025 vs 2026 monthly expense comparison ───────────────────────────────────
+// ── Income vs Expense pie charts (Jan–Apr only, uses cmpFilter) ──────────────
+function buildIEPies(){
+  const d25 = DATA['2025'];
+  const d26 = DATA['2026'];
+  const JAN_APR = [0,1,2,3];
+
+  // ── Income chart: breakdown by subcategory (4111 / 4113 / 4114) ─────────────
+  const incSubKeys   = ['4111 Income – Purchase','4113 Income – Refinance Cash-Out','4114 Income – Refinance'];
+  const incSubColors = ['#0EA5E9','#38BDF8','#7DD3FC'];   // sky-blues — income palette
+  const incSubShort  = ['4111 – Purchase','4113 – Ref. Cash-Out','4114 – Refinance'];
+
+  // Use only the year(s) matching the active tab
+  // 2025 → full year; 2026 → Jan–Apr only; both → full 2025 + Jan–Apr 2026
+  const incVals = currentYear === '2025'
+    ? incSubKeys.map(k => d25.incTypeFullYear[k]||0)
+    : currentYear === '2026'
+    ? incSubKeys.map(k => d26.incTypeJanApr[k]||0)
+    : incSubKeys.map(k => (d25.incTypeFullYear[k]||0) + (d26.incTypeJanApr[k]||0));
+  const incTotal = incVals.reduce((a,b)=>a+b,0);
+
+  charts.pieIE25.data.labels   = incSubShort;
+  charts.pieIE25.data.datasets = [{ data: incVals, backgroundColor: incSubColors, borderWidth: 0, hoverOffset: 8 }];
+  charts.pieIE25.update('active');
+  document.getElementById('legPieIE25').innerHTML = incSubShort.map((l,i) =>
+    `<div class="legend-item">
+      <div class="legend-dot" style="background:${incSubColors[i]}"></div>
+      ${l}: ${fmt(incVals[i])} <span style="color:#475569">(${incTotal>0?(incVals[i]/incTotal*100).toFixed(1):0}%)</span>
+    </div>`
+  ).join('');
+
+  // ── Expense chart: category breakdown (year-aware, cmpFilter) ─
+  // 2025 → full 12 months; 2026 → Jan–Apr only
+  function catSum(d, key, indices) {
+    return indices.reduce((s,i) => s + (d[key][i]||0), 0);
+  }
+
+  const cats = [
+    { key:'payroll',  label:'Payroll',       color:'#DC2626' },  // reds/oranges — expense palette
+    { key:'software', label:'Software',      color:'#EA580C' },
+    { key:'buro',     label:'Buro – Xactus', color:'#D97706' },
+    { key:'other',    label:'Other',         color:'#CA8A04' },
+    { key:'notop',    label:'Not Operating', color:'#78716C' },
+  ].filter(c => cmpFilter[c.key]);
+
+  const allMonths = [...Array(12).keys()];
+  const expSrc  = currentYear === '2025' ? [{d:d25, idx:allMonths}]
+                : currentYear === '2026' ? [{d:d26, idx:JAN_APR}]
+                : [{d:d25, idx:allMonths}, {d:d26, idx:JAN_APR}];
+  const expVals = cats.map(c => expSrc.reduce((s,{d,idx}) => s + catSum(d, c.key, idx), 0));
+  const expLabels = cats.map(c => c.label);
+  const expColors = cats.map(c => c.color);
+  const expTotal  = expVals.reduce((a,b)=>a+b,0);
+
+  charts.pieIE26.data.labels   = expLabels;
+  charts.pieIE26.data.datasets = [{ data: expVals, backgroundColor: expColors, borderWidth: 0, hoverOffset: 8 }];
+  charts.pieIE26.update('active');
+  document.getElementById('legPieIE26').innerHTML = expLabels.map((l,i) =>
+    `<div class="legend-item">
+      <div class="legend-dot" style="background:${expColors[i]}"></div>
+      ${l}: ${fmt(expVals[i])} <span style="color:#475569">(${expTotal>0?(expVals[i]/expTotal*100).toFixed(1):'0'}%)</span>
+    </div>`
+  ).join('');
+}
+
+function buildComparisonTable(){
+  const d25 = DATA['2025'];
+  const d26 = DATA['2026'];
+  const months = ['Jan','Feb','Mar','Apr'];
+
+  // Compute filtered expense per month for each year
+  function filtExp(d, i){
+    return (cmpFilter.payroll  ? (d.payroll[i]  || 0) : 0)
+         + (cmpFilter.software ? (d.software[i] || 0) : 0)
+         + (cmpFilter.buro     ? (d.buro[i]     || 0) : 0)
+         + (cmpFilter.other    ? (d.other[i]    || 0) : 0)
+         + (cmpFilter.notop    ? (d.notop[i]    || 0) : 0);
+  }
+
+  const tbody = document.getElementById('cmp-tbody');
+  tbody.innerHTML = '';
+
+  let tot25 = 0, tot26 = 0;
+
+  months.forEach((m, i) => {
+    const e25 = filtExp(d25, i);
+    const e26 = filtExp(d26, i);
+    const diff = e26 - e25;
+    const pct  = e25 !== 0 ? (diff / e25) * 100 : null;
+    tot25 += e25; tot26 += e26;
+
+    const diffColor  = diff <= 0 ? '#4ADE80' : '#F87171';
+    const arrowColor = diff <= 0 ? '#4ADE80' : '#F87171';
+    const arrow      = diff < 0 ? '▼' : diff > 0 ? '▲' : '–';
+    const pctTxt     = pct !== null ? `${arrow} ${Math.abs(pct).toFixed(1)}%` : '—';
+    const pctBg      = pct === null ? 'transparent'
+                     : diff <= 0   ? 'rgba(74,222,128,.12)'
+                                   : 'rgba(248,113,113,.12)';
+
+    tbody.innerHTML += `
+      <tr>
+        <td>${m}</td>
+        <td style="color:#FCA5A5">${fmt(e25)}</td>
+        <td style="color:#FCA5A5">${fmt(e26)}</td>
+        <td style="color:${diffColor};font-weight:600">${diff >= 0 ? '+' : ''}${fmt(diff)}</td>
+        <td style="background:${pctBg};color:${arrowColor};font-weight:700;border-radius:4px">${pctTxt}</td>
+      </tr>`;
+  });
+
+  // Total row
+  const totDiff = tot26 - tot25;
+  const totPct  = tot25 !== 0 ? (totDiff / tot25) * 100 : null;
+  const totArrow = totDiff < 0 ? '▼' : totDiff > 0 ? '▲' : '–';
+  const totColor = totDiff <= 0 ? '#4ADE80' : '#F87171';
+  tbody.innerHTML += `
+    <tr class="total-row">
+      <td>TOTAL (Jan–Apr)</td>
+      <td style="color:#FCA5A5">${fmt(tot25)}</td>
+      <td style="color:#FCA5A5">${fmt(tot26)}</td>
+      <td style="color:${totColor}">${totDiff >= 0 ? '+' : ''}${fmt(totDiff)}</td>
+      <td style="color:${totColor}">${totArrow} ${totPct !== null ? Math.abs(totPct).toFixed(1)+'%' : '—'}</td>
+    </tr>`;
+}
+
+function buildLegend(id, items){
+  document.getElementById(id).innerHTML = items
+    .map(i=>`<div class="legend-item"><div class="legend-dot" style="background:${i.color}"></div>${i.label}</div>`)
+    .join('');
+}
+
+let currentYear = '2025';
+
+function setYear(yr, btn){
+  currentYear = yr;
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  btn.classList.add('active');
+  updateAll();
+}
+
+function updateAll(){
+  const d   = DATA[currentYear];
+  const exp = opExpense(d);                                        // operating expenses only
+  const profit = d.income.map((v,i) => v - exp[i]);
+  const ppl    = d.income.map((v,i) => d.loans[i] > 0 ? profit[i] / d.loans[i] : null);
+  const totalInc = sum(d.income);
+  const totalExp = sum(exp);
+  const totalPr  = totalInc - totalExp;
+  const totalLn  = sum(d.loans);
+
+  // KPIs
+  document.getElementById('kpi-income').textContent  = fmt(totalInc);
+  document.getElementById('kpi-expense').textContent = fmt(totalExp);
+  document.getElementById('kpi-profit').textContent  = fmt(totalPr);
+  document.getElementById('kpi-profit').style.color  = totalPr >= 0 ? '#4ADE80' : '#F87171';
+  document.getElementById('kpi-loans').textContent   = totalLn;
+  document.getElementById('kpi-income-sub').textContent  = currentYear === 'both' ? '2025 + 2026' : currentYear;
+  document.getElementById('kpi-expense-sub').textContent = `Margin: ${(totalExp/totalInc*100).toFixed(1)}%`;
+  document.getElementById('kpi-profit-sub').textContent  = `Net margin: ${(totalPr/totalInc*100).toFixed(1)}%`;
+  document.getElementById('kpi-loans-sub').textContent   = `Avg profit/loan: ${fmt(totalLn ? totalPr/totalLn : 0)}`;
+
+  // Heat table
+  buildHeatTable(d);
+  buildDistTable(d);
+  buildComparisonTable();
+  buildIEPies();
+
+  // Income vs Expenses
+  updateChart(charts.incExp, d.labels, [
+    {label:'Income',   data:d.income, backgroundColor:'rgba(37,99,235,.75)', borderColor:'#2563EB',borderWidth:1.5,borderRadius:4},
+    {label:'Expenses', data:exp,      backgroundColor:'rgba(234,88,12,.75)', borderColor:'#EA580C',borderWidth:1.5,borderRadius:4},
+  ]);
+
+  // Net Profit
+  const ptColors = profit.map(v => v >= 0 ? '#4ADE80' : '#F87171');
+  updateChart(charts.profit, d.labels, [{
+    label:'Net Profit', data:profit,
+    borderColor:'#4ADE80', backgroundColor:'rgba(74,222,128,.12)',
+    pointBackgroundColor:ptColors, pointBorderColor:ptColors,
+    fill:true, tension:.35, pointRadius:4, borderWidth:2,
+  }]);
+
+  // Loans
+  updateChart(charts.loans, d.labels, [{
+    label:'Loans', data:d.loans,
+    backgroundColor:'rgba(13,148,136,.75)', borderColor:'#0D9488', borderWidth:1.5, borderRadius:4,
+  }]);
+
+  // Profit per Loan
+  updateChart(charts.ppl, d.labels, [{
+    label:'Profit/Loan', data:ppl,
+    borderColor:'#A78BFA', backgroundColor:'rgba(167,139,250,.12)',
+    fill:true, tension:.35, pointRadius:4, borderWidth:2, spanGaps:true,
+  }]);
+
+  // Expense breakdown stacked
+  updateChart(charts.expCat, d.labels, [
+    {label:'Payroll',      data:d.payroll,  backgroundColor:'rgba(37,99,235,.8)'},
+    {label:'Software',     data:d.software, backgroundColor:'rgba(13,148,136,.8)'},
+    {label:'Buro-Xactus',  data:d.buro,     backgroundColor:'rgba(124,58,237,.8)'},
+    {label:'Other',        data:d.other,    backgroundColor:'rgba(217,119,6,.8)'},
+    {label:'Not Operating',data:d.notop,    backgroundColor:'rgba(107,114,128,.8)'},
+  ]);
+  buildLegend('legExpCat',[
+    {color:'#2563EB',label:'Payroll'},{color:'#0D9488',label:'Software'},
+    {color:'#7C3AED',label:'Buro-Xactus'},{color:'#D97706',label:'Other'},
+    {color:'#6B7280',label:'Not Operating Exp.'},
+  ]);
+
+  // Income type donut
+  const itKeys   = Object.keys(d.incType);
+  const itVals   = itKeys.map(k => d.incType[k]);
+  const itColors = ['#2563EB','#0D9488','#7C3AED','#D97706'];
+  charts.incType.data.labels   = itKeys;
+  charts.incType.data.datasets = [{data:itVals,backgroundColor:itColors,borderWidth:0,hoverOffset:8}];
+  charts.incType.update('active');
+  buildLegend('legIncType', itKeys.map((k,i)=>({color:itColors[i],label:`${k}: ${fmt(itVals[i])}`})));
+}
+
+initCharts();
+updateAll();
+</script>
+</body>
+</html>
