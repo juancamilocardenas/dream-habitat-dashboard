@@ -73,6 +73,60 @@ body{font-family:'Inter',sans-serif;background:#0F172A;color:#E2E8F0;min-height:
 .heat-legend{display:flex;align-items:center;gap:20px;margin-top:12px;font-size:11px;color:#64748B}
 .heat-legend-scale{display:flex;align-items:center;gap:6px}
 .heat-legend-bar{width:80px;height:8px;border-radius:4px}
+
+/* ── Responsive ─────────────────────────────────────────────────────────── */
+@media(max-width:768px){
+  .header{padding:16px 18px}
+  .header-left h1{font-size:17px}
+  .header-left p{font-size:11px}
+  .logo{width:36px;height:36px;font-size:14px}
+
+  .main{padding:14px 14px}
+
+  .tabs{width:100%;justify-content:stretch}
+  .tab{flex:1;padding:8px 6px;font-size:12px;text-align:center}
+
+  .kpi-row{grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:18px}
+  .kpi{padding:14px 14px}
+  .kpi-value{font-size:20px}
+  .kpi-icon{display:none}
+
+  .charts-grid{grid-template-columns:1fr;gap:14px}
+  .chart-card.full{grid-column:1}
+  .chart-wrap{height:200px}
+  .chart-wrap.tall{height:220px}
+
+  .heat-card{padding:14px 14px}
+
+  /* Scrollable tables on mobile */
+  .heat-table{font-size:11px}
+  .heat-table th,.heat-table td{padding:6px 8px}
+
+  /* Pie charts stack vertically */
+  div[style*="grid-template-columns:1fr 1fr"]{
+    display:grid!important;
+    grid-template-columns:1fr!important;
+  }
+
+  /* Insights & descriptions grids */
+  div[style*="grid-template-columns:repeat(3,1fr)"]{
+    display:grid!important;
+    grid-template-columns:1fr!important;
+  }
+  div[style*="grid-template-columns:repeat(2,1fr)"]{
+    display:grid!important;
+    grid-template-columns:1fr!important;
+  }
+
+  .exp-filters{gap:6px}
+  .chip{padding:4px 10px;font-size:10px}
+}
+
+@media(max-width:480px){
+  .kpi-row{grid-template-columns:1fr 1fr}
+  .kpi-value{font-size:18px}
+  .header-left h1{font-size:15px}
+}
 </style>
 </head>
 <body>
